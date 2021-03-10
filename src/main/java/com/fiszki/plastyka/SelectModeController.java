@@ -3,6 +3,7 @@ package com.fiszki.plastyka;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -45,7 +46,8 @@ public class SelectModeController
         try
         {
             parent = FXMLLoader.load(newSceneUrl);
-            mainPane.getScene().setRoot(parent);
+            Scene scene = mainPane.getScene();
+            scene.setRoot(parent);
             Stage.getWindows().get(0).sizeToScene();
         } catch (IOException e)
         {

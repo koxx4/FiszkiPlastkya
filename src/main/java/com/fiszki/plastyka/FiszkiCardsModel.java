@@ -101,14 +101,7 @@ public class FiszkiCardsModel
                 downloadingEventHandler.onDownloadingAction(imageFileName, (float)cards.indexOf(card)/cards.size());
                 MaterialDownloader.downloadNextCardImage(card, IMAGES_PATH, imageFileName);
             }
-
-            File xmlFile = new File(CARDS_XML_PATH + "cards.xml");
-            CardsListWrapper wrapper = new CardsListWrapper();
-            wrapper.setCards(cards);
-            //Serializer didn't work without passing an ownership of a cards
-            cards = null;
-            initializeSimpleSerializer().write( wrapper, new FileWriter(xmlFile, StandardCharsets.UTF_8));
-            cards = wrapper.getCards();
+            saveXMLCardsData();
         }
         catch (Exception e)
         {
@@ -117,6 +110,17 @@ public class FiszkiCardsModel
         activeCard = cards.get(0);
         loadedImages = getImagesNumber();
         initialized = true;
+    }
+    static  private void saveXMLCardsData() throws Exception
+    {
+        System.out.println("Saving XML cards data...");
+        File xmlFile = new File(CARDS_XML_PATH + "cards.xml");
+        CardsListWrapper wrapper = new CardsListWrapper();
+        wrapper.setCards(cards);
+        //Serializer didn't work without passing an ownership of a cards
+        cards = null;
+        initializeSimpleSerializer().write( wrapper, new FileWriter(xmlFile, StandardCharsets.UTF_8));
+        cards = wrapper.getCards();
     }
     static public void initializeModel()
     {
@@ -133,7 +137,7 @@ public class FiszkiCardsModel
         try
         {
             File sourceXmlFile = new File(CARDS_XML_PATH + "cards.xml");
-            CardsListWrapper tempWrapper = initializeSimpleSerializer().read(CardsListWrapper.class , new FileReader(sourceXmlFile));
+            CardsListWrapper tempWrapper = initializeSimpleSerializer().read(CardsListWrapper.class , new FileReader(sourceXmlFile, StandardCharsets.UTF_8));
             cards = tempWrapper.getCards();
 
         } catch (Exception e)
@@ -149,6 +153,14 @@ public class FiszkiCardsModel
     static public void closeModel()
     {
         System.out.println("Closing model");
+        try
+        {
+            saveXMLCardsData();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("Failed to save XML cards data!\nPossible changes hasn't been written :/");
+        }
     }
     static public FiszkaCard getActiveCard()
     {
