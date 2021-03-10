@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane minWidth="500" minHeight="240" prefHeight="240.0" prefWidth="500.0" style="-fx-background-color: #4c595c;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fiszki.plastyka.SelectModeController" fx:id="mainPane">
+   <children>
+      <ToolBar layoutX="14.0" layoutY="100.0" prefHeight="40.0" prefWidth="483.0" style="-fx-background-color: #4c595e;">
+        <items>
+            <Button mnemonicParsing="false" text="Tryb stylu" onAction="#setArtStyleMode">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" text="Tryb nazwy dzieła" onAction="#setNameMode">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" text="Tryb autora" onAction="#setAuthorMode">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" text="Tryb epoki" onAction="#setPeriodMode">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+        </items>
+      </ToolBar>
+   </children>
+</AnchorPane>
