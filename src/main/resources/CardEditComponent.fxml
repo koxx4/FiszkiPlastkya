@@ -34,10 +34,10 @@
       </Label>
       <TextField fx:id="periodTextField" prefHeight="25.0" prefWidth="251.0" />
       <HBox style="-fx-spacing: 100;">
-         <children>
-            <Button fx:id="cancelEditButton" mnemonicParsing="false" onAction="#endUserEdition" prefHeight="25.0" prefWidth="72.0" text="Anuluj" />
-            <Button fx:id="confirmEditButton" mnemonicParsing="false" onAction="#saveUserEdition" prefHeight="25.0" prefWidth="73.0" text="Potwierdź" />
-         </children>
+         <Button fx:id="cancelEditButton" mnemonicParsing="false" onAction="#abortUserEdition" prefHeight="25.0"
+                 prefWidth="72.0" text="Anuluj"/>
+         <Button fx:id="confirmEditButton" mnemonicParsing="false" onAction="#saveUserEdition" prefHeight="25.0"
+                 prefWidth="73.0" text="Potwierdź"/>
       </HBox>
    </children>
 </VBox>

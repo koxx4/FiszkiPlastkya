@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane minWidth="500" minHeight="240" prefHeight="240.0" prefWidth="500.0" style="-fx-background-color: #4c595c;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fiszki.plastyka.SelectModeController" fx:id="mainPane">
+<AnchorPane fx:id="mainPane" minHeight="240" minWidth="500" prefHeight="240.0" prefWidth="500.0" stylesheets="MainMenuBackground.css" styleClass="mainMenuBackground2" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fiszki.plastyka.SelectModeController">
    <children>
-      <ToolBar layoutX="14.0" layoutY="100.0" prefHeight="40.0" prefWidth="483.0" style="-fx-background-color: #4c595e;">
-        <items>
-            <Button mnemonicParsing="false" text="Tryb stylu" onAction="#setArtStyleMode">
+      <HBox alignment="CENTER" prefHeight="240.0" prefWidth="494.0" style="-fx-spacing: 10; -fx-padding: 20;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Button onAction="#goToMainMenu" mnemonicParsing="false" stylesheets="@GeneralButton.css" text="Wróć" />
+            <Button mnemonicParsing="false" onAction="#setArtStyleMode" stylesheets="@GeneralButton.css" text="Tryb stylu">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" text="Tryb nazwy dzieła" onAction="#setNameMode">
+            <Button mnemonicParsing="false" onAction="#setNameMode" stylesheets="@GeneralButton.css" text="Tryb nazwy dzieła">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" text="Tryb autora" onAction="#setAuthorMode">
+            <Button mnemonicParsing="false" onAction="#setAuthorMode" stylesheets="@GeneralButton.css" text="Tryb autora">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" text="Tryb epoki" onAction="#setPeriodMode">
+            <Button mnemonicParsing="false" onAction="#setPeriodMode" stylesheets="@GeneralButton.css" text="Tryb epoki">
                <font>
                   <Font size="14.0" />
                </font>
             </Button>
-        </items>
-      </ToolBar>
+         </children>
+      </HBox>
    </children>
 </AnchorPane>

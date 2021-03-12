@@ -1,6 +1,6 @@
 package com.fiszki.plastyka;
 
-public interface IImageDownloadingEvent
+public interface IDownloadingEvent
 {
     void onDownloadingAction(String fileName, float progress);
 }

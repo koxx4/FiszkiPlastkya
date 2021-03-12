@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MaterialDownloader
 {
-    private static final String ART_PAGE_URL = "http://www.zsplast.gdynia.pl/historia_sztuki/";
+    public static final String ART_PAGE_URL = "http://www.zsplast.gdynia.pl/historia_sztuki/";
 
-    public static ArrayList<FiszkaCard> connectAndParseHTML() throws IOException
+    public static ArrayList<FiszkaCard> connectAndParseHTML(IDownloadingEvent downloadingEventHandler) throws IOException
     {
         ArrayList<FiszkaCard> cards = new ArrayList<FiszkaCard>();
         //Connects to page and fetches html doc
@@ -46,16 +46,20 @@ public class MaterialDownloader
         AtomicLong cardNumber = new AtomicLong(0);
 
         pureElements.forEach( element -> {
+
+            downloadingEventHandler.onDownloadingAction("cards.xml",
+                    cardNumber.get() / (float)pureElements.size()  );
+
             if(element.tagName() == "h3")
             {
                 lastArtStyle.set(element.ownText().toLowerCase());
             }
-            else //If it's a 'li'
+            else //If it's a 'li' node
             {
                 element.select("a[href]").forEach( aElement -> {
                     FiszkaCard newCard = new FiszkaCard();
 
-                    newCard.id = cardNumber.get();
+                    newCard.id = String.valueOf(cardNumber.get());
                     newCard.style = lastArtStyle.get();
                     newCard.style = newCard.style.replaceAll("\\p{Punct}", " ");
                     if(newCard.style.isEmpty())
@@ -68,7 +72,7 @@ public class MaterialDownloader
                     if(newCard.author.isEmpty())
                         newCard.author = "nieznany";
 
-                    newCard.imagePath = aElement.absUrl("href");
+                    newCard.imageURL = aElement.absUrl("href");
                     newCard.name = aElement.ownText();
                     newCard.name = newCard.name.replaceAll("\\p{Punct}", " ");
                     if(newCard.name.isEmpty())
@@ -98,7 +102,7 @@ public class MaterialDownloader
         URL url = null;
         try
         {
-            url = new URL(card.imagePath);
+            url = new URL(card.imageURL);
         }
         catch (MalformedURLException e)
         {

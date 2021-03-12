@@ -10,29 +10,23 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Random;
 import java.util.ResourceBundle;
 
 
-public class MainController implements Initializable
+public class GuessingSceneController implements Initializable
 {
     public enum GuessingMode
     {
         STYLE, NAME, AUTHOR, PERIOD
     };
     private static final String[] easterEggs = new String[]{"Kocham Natalie <3", "Made by Piotr Wilk", "<3", "jak ci idzie Slonce?", "UwU", "OwO"};
-    private static Random randomGenerator;
-    private static GuessingMode currentGuessingMode;
+    private static GuessingMode currentGuessingMode = GuessingMode.STYLE;
     @FXML
     private EditCardComponentController editCardComponentController;
-    @FXML
-    private Button previousCardButton;
     @FXML
     private Button nextCardButton;
     @FXML
@@ -50,30 +44,28 @@ public class MainController implements Initializable
     private void editCard()
     {
         //Hide buttons changing card
-        previousCardButton.setVisible(false);
         nextCardButton.setVisible(false);
         editCardButton.setVisible(false);
         //Reveal edit card component
         editCardComponentController.container.setVisible(true);
 
         editCardComponentController.startEdit(() -> {
-            previousCardButton.setVisible(true);
             nextCardButton.setVisible(true);
             editCardButton.setVisible(true);
             editCardComponentController.container.setVisible(false);
         } );
     }
     @FXML
-    public void showPreviousImage(ActionEvent event)
+    public void showPreviousCard(ActionEvent event)
     {
-        correctAnswerLabel.setText(easterEggs[randomGenerator.nextInt(easterEggs.length)]);
-        imageView.setImage(new Image(FiszkiCardsModel.getRandomNextArtImage().toString()));
+        correctAnswerLabel.setText(easterEggs[FiszkiCardsModel.randomGenerator.nextInt(easterEggs.length)]);
+        imageView.setImage(FiszkiCardsModel.getCardImage(FiszkiCardsModel.getRandomCard()));
     }
     @FXML
-    public void showNextImage(ActionEvent event)
+    public void showNextCard(ActionEvent event)
     {
-        correctAnswerLabel.setText(easterEggs[randomGenerator.nextInt(easterEggs.length)]);
-        imageView.setImage(new Image(FiszkiCardsModel.getRandomNextArtImage().toString()));
+        correctAnswerLabel.setText(easterEggs[FiszkiCardsModel.randomGenerator.nextInt(easterEggs.length)]);
+        imageView.setImage(FiszkiCardsModel.getCardImage(FiszkiCardsModel.getRandomCard()));
     }
     @FXML
     public void validateUserAnswer(ActionEvent event)
@@ -97,19 +89,16 @@ public class MainController implements Initializable
     public void initialize(URL location, ResourceBundle resources)
     {
         //Hide edit card field in default
+
         editCardComponentController.container.setVisible(false);
-        randomGenerator = new Random();
-        FiszkiCardsModel.initializeModel();
-        imageView.setImage(new Image(FiszkiCardsModel.getPrevArtImage().toString()));
+        imageView.setImage(FiszkiCardsModel.getCardImage(FiszkiCardsModel.getRandomCard()));
         modeDescription.setText("Aktywny tryb: " + currentGuessingMode.toString());
         editCardButton.setTooltip( new Tooltip("Jezeli wydaje ci sie, ze dane w fiszce sa niepoprawne, mozesz ja edytowac."));
     }
-
     public static void setCurrentGuessingMode(GuessingMode mode)
     {
-        MainController.currentGuessingMode = mode;
+        GuessingSceneController.currentGuessingMode = mode;
     }
-
     @FXML
     private void returnToModeSelect()
     {
@@ -120,7 +109,7 @@ public class MainController implements Initializable
             parent = FXMLLoader.load(newSceneUrl);
             Scene scene = imageView.getScene();
             scene.setRoot(parent);
-            Stage.getWindows().get(0).sizeToScene();
+
         } catch (IOException e)
         {
             e.printStackTrace();

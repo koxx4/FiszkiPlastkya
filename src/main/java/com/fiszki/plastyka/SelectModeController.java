@@ -1,12 +1,8 @@
 package com.fiszki.plastyka;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 
@@ -18,37 +14,45 @@ public class SelectModeController
     @FXML
     private void setArtStyleMode()
     {
-        MainController.setCurrentGuessingMode(MainController.GuessingMode.STYLE);
+        GuessingSceneController.setCurrentGuessingMode(GuessingSceneController.GuessingMode.STYLE);
         startGuessingScene();
     }
     @FXML
     private void setAuthorMode()
     {
-        MainController.setCurrentGuessingMode(MainController.GuessingMode.AUTHOR);
+        GuessingSceneController.setCurrentGuessingMode(GuessingSceneController.GuessingMode.AUTHOR);
         startGuessingScene();
     }
     @FXML
     private void setNameMode()
     {
-        MainController.setCurrentGuessingMode(MainController.GuessingMode.NAME);
+        GuessingSceneController.setCurrentGuessingMode(GuessingSceneController.GuessingMode.NAME);
         startGuessingScene();
     }
     @FXML
     private void setPeriodMode()
     {
-        MainController.setCurrentGuessingMode(MainController.GuessingMode.PERIOD);
+        GuessingSceneController.setCurrentGuessingMode(GuessingSceneController.GuessingMode.PERIOD);
         startGuessingScene();
     }
     private void startGuessingScene()
     {
-        URL newSceneUrl = getClass().getResource("/MainScene.fxml");
-        Parent parent = null;
         try
         {
-            parent = FXMLLoader.load(newSceneUrl);
-            Scene scene = mainPane.getScene();
-            scene.setRoot(parent);
+            URL newSceneUrl = getClass().getResource("/GuessingScene.fxml");
+            SceneUtilities.loadScene(newSceneUrl, mainPane.getScene());
             Stage.getWindows().get(0).sizeToScene();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void goToMainMenu()
+    {
+        try
+        {
+            SceneUtilities.loadScene(getClass().getResource("/MainMenuScene.fxml"), mainPane.getScene());
         } catch (IOException e)
         {
             e.printStackTrace();

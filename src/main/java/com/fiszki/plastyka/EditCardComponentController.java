@@ -26,22 +26,28 @@ public class EditCardComponentController
         cardToEdit.period = periodTextField.getText().isBlank() ? "nieznany" : nameTextField.getText();
         cardToEdit.style = styleTextField.getText().isBlank() ? "nieznany" : nameTextField.getText();
         //Cleanup after user input
+        FiszkiCardsModel.addNewCard(cardToEdit);
+        cardToEdit = null;
         endUserEdition();
     }
     @FXML
+    private void abortUserEdition()
+    {
+        cardToEdit = null;
+        endUserEdition();
+    }
     private void endUserEdition()
     {
         nameTextField.clear();
         authorTextField.clear();
         styleTextField.clear();
         periodTextField.clear();
-        cardToEdit = null; //To avoid unexpected edit in future
         onCardEditFinishCallback.onCardEditFinishAction();
     }
     @FXML
     public void startEdit(IOnCardEditFinish onCardEditFinishCallback)
     {
-        cardToEdit = FiszkiCardsModel.getActiveCard();
+        cardToEdit = new FiszkaCard(FiszkiCardsModel.getActiveCard());
         nameTextField.setText(cardToEdit.name);
         authorTextField.setText(cardToEdit.author);
         styleTextField.setText(cardToEdit.style);

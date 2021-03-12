@@ -1,0 +1,14 @@
+.mainMenuBackground{
+     -fx-background-image: url("main_menu_background_2.jpg");
+     -fx-background-repeat: stretch;
+     -fx-background-size: stretch;
+     -fx-background-position: center center;
+     -fx-opacity: 0.8;
+ }
+.mainMenuBackground2{
+    -fx-background-image: url("main_menu_background_3.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-size: stretch;
+    -fx-background-position: center center;
+    -fx-opacity: 0.8;
+}

@@ -1,79 +1,107 @@
 package com.fiszki.plastyka;
 
+import javafx.scene.image.Image;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class FiszkiCardsModel
 {
     static final public String IMAGES_PATH = "Data/images/";
     static final public String CARDS_XML_PATH = "Data/info/";
+    static final private String[] restrictedCharacters = {"?", ">", "<", ":", "\"", "\\", "/", "|", "*"};
+    public static Random randomGenerator;
 
-    static private List<FiszkaCard> cards;
+    static private List<FiszkaCard> loadedCards;
+    static private List<FiszkaCard> addedCards;
+    static private List<String> IDs;
 
     static private FiszkaCard activeCard;
-    static private int loadedImages = 0;
     static private boolean initialized = false;
 
-    static public URL getNextArtImage()
+    static public FiszkaCard getNextCard()
     {
         //If we are below loadedImages limit
-        if(cards.indexOf(activeCard) - 1 > cards.size())
+        if(loadedCards.indexOf(activeCard) - 1 > loadedCards.size())
         {
-            activeCard = cards.get(cards.indexOf(activeCard)+1);
+            activeCard = loadedCards.get(loadedCards.indexOf(activeCard)+1);
         }
 
-        return getImageURL();
+        return activeCard;
     }
-    static public URL getPrevArtImage()
+    static public FiszkaCard getPreviousCard()
     {
         //If we are below or at 0 index (which is the last)
-        if(cards.indexOf(activeCard) > 0)
+        if(loadedCards.indexOf(activeCard) > 0)
         {
-            activeCard = cards.get(cards.indexOf(activeCard)-1);
+            activeCard = loadedCards.get(loadedCards.indexOf(activeCard)-1);
         }
 
-        return getImageURL();
+        return activeCard;
     }
-    static public URL getRandomNextArtImage()
+    static public FiszkaCard getRandomCard()
     {
         Random randomGenerator = new Random();
-        int randomIndex = randomGenerator.nextInt(loadedImages);
+        int randomIndex = randomGenerator.nextInt(loadedCards.size());
 
-        while (randomIndex == cards.indexOf(activeCard))
+        while (randomIndex == loadedCards.indexOf(activeCard))
         {
-            randomIndex = randomGenerator.nextInt(loadedImages);
+            randomIndex = randomGenerator.nextInt(loadedCards.size());
         }
 
-        activeCard = cards.get(randomIndex);
-        return getImageURL();
+        activeCard = loadedCards.get(randomIndex);
+        return activeCard;
     }
-    static private URL getImageURL()
+    static public Image getCardImage(FiszkaCard card)
     {
 
         File dir = new File(IMAGES_PATH);
         File[] files = dir.listFiles((dir1, name) -> {
-            return name.startsWith("image"+ activeCard.id) && (name.endsWith("jpg") || name.endsWith("png"));
+            return name.startsWith("image_"+ card.id) && (name.toLowerCase().endsWith("jpg") || name.toLowerCase().endsWith("png"));
         });
 
-        URL returnURL = null;
+        URL imagePath = null;
         try
         {
-            returnURL = files[0].toURI().toURL();
-        } catch (MalformedURLException e)
+            imagePath = files[0].toURI().toURL();
+        } catch (Exception e)
         {
-            e.printStackTrace();
+            //If there was any kind of problem retreiving an image just punt a blank image
+            return getBlankImage();
         }
 
-        return returnURL;
+        return new Image(String.valueOf(imagePath));
+    }
+    static public Image getActiveCardImage()
+    {
+
+        File dir = new File(IMAGES_PATH);
+        File[] files = dir.listFiles((dir1, name) -> {
+            return name.startsWith("image_"+ activeCard.id) && (name.toLowerCase().endsWith("jpg") || name.toLowerCase().endsWith("png"));
+        });
+
+        String imagePath = null;
+        try
+        {
+            imagePath = files[0].toString();
+        } catch (Exception e)
+        {
+            //If there was any kind of problem retreiving an image just punt a blank image
+            return getBlankImage();
+        }
+
+        return new Image(imagePath);
+    }
+    static public Image getBlankImage()
+    {
+        Image placeholder = new Image(String.valueOf(FiszkiCardsModel.class.getResource("/placeholder_image.png")));
+        return placeholder;
     }
     static public int getImagesNumber()
     {
@@ -89,73 +117,49 @@ public class FiszkiCardsModel
         }
         return 0;
     }
-    static public void constructCards(IImageDownloadingEvent downloadingEventHandler)
+    static public void downloadCardsImages(IDownloadingEvent downloadingEventHandler)
     {
-        makeDataDirs();
         try
         {
-            cards = MaterialDownloader.connectAndParseHTML();
-            for (var card : cards)
+            for (var card : loadedCards)
             {
-                String imageFileName = "image" + card.id + ".jpg";
-                downloadingEventHandler.onDownloadingAction(imageFileName, (float)cards.indexOf(card)/cards.size());
+                String imageExtension = card.imageURL.substring(card.imageURL.length()-4);
+                String imageFileName = "image_" + card.id + imageExtension;
+                downloadingEventHandler.onDownloadingAction(imageFileName, (float) loadedCards.indexOf(card)/ (loadedCards.size()-1));
                 MaterialDownloader.downloadNextCardImage(card, IMAGES_PATH, imageFileName);
             }
-            saveXMLCardsData();
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-        activeCard = cards.get(0);
-        loadedImages = getImagesNumber();
+        activeCard = loadedCards.get(0);
         initialized = true;
     }
-    static  private void saveXMLCardsData() throws Exception
-    {
-        System.out.println("Saving XML cards data...");
-        File xmlFile = new File(CARDS_XML_PATH + "cards.xml");
-        CardsListWrapper wrapper = new CardsListWrapper();
-        wrapper.setCards(cards);
-        //Serializer didn't work without passing an ownership of a cards
-        cards = null;
-        initializeSimpleSerializer().write( wrapper, new FileWriter(xmlFile, StandardCharsets.UTF_8));
-        cards = wrapper.getCards();
-    }
-    static public void initializeModel()
+    static public void initializeModel() throws NoCardsLoadedException
     {
         if(!initialized)
         {
+            loadedCards = new ArrayList<>();
+            addedCards = new ArrayList<>();
+            IDs = new ArrayList<>();
+
+            randomGenerator = new Random();
             loadCardsData();
-            loadedImages = getImagesNumber();
-            activeCard = cards.get(0);
+
+            if (loadedCards.isEmpty())
+                throw new NoCardsLoadedException("Couldn't load any cards!");
+
+            activeCard = loadedCards.get(randomGenerator.nextInt(loadedCards.size()));
             initialized = true;
         }
-    }
-    static private void loadCardsData()
-    {
-        try
-        {
-            File sourceXmlFile = new File(CARDS_XML_PATH + "cards.xml");
-            CardsListWrapper tempWrapper = initializeSimpleSerializer().read(CardsListWrapper.class , new FileReader(sourceXmlFile, StandardCharsets.UTF_8));
-            cards = tempWrapper.getCards();
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-    static private Serializer initializeSimpleSerializer()
-    {
-        Serializer serializer = new Persister();
-        return serializer;
     }
     static public void closeModel()
     {
         System.out.println("Closing model");
         try
         {
-            saveXMLCardsData();
+            saveAddedOrModifiedCards();
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -166,7 +170,45 @@ public class FiszkiCardsModel
     {
         return activeCard;
     }
-    static private void makeDataDirs()
+    static public void downloadOnlineCards(IDownloadingEvent downloadingEventHandler) throws Exception
+    {
+        System.out.println("Downlading cards data from " + MaterialDownloader.ART_PAGE_URL);
+        List<FiszkaCard> downloadedCards = MaterialDownloader.connectAndParseHTML(downloadingEventHandler);
+        Serializer serializer = initializeSimpleSerializer();
+        for (FiszkaCard card : downloadedCards)
+        {
+            try
+            {
+                String filePath = CARDS_XML_PATH + "card_" +  card.id + ".xml";
+                File xmlCardFile = new File(filePath);
+                serializer.write(card, new FileWriter(xmlCardFile, StandardCharsets.UTF_8));
+            } catch (Exception e)
+            {
+                e.printStackTrace(System.out);
+            }
+        }
+    }
+    static public void saveAddedOrModifiedCards()
+    {
+        if(!addedCards.isEmpty())
+        {
+            Serializer serializer = initializeSimpleSerializer();
+            for (FiszkaCard card : addedCards)
+            {
+                try
+                {
+                    String filePath = CARDS_XML_PATH + "card_" +  card.id + ".xml";
+                    File xmlCardFile = new File(filePath);
+                    serializer.write(card, new FileWriter(xmlCardFile, StandardCharsets.UTF_8));
+                } catch (Exception e)
+                {
+                    e.printStackTrace(System.out);
+                }
+            }
+            addedCards.clear();
+        }
+    }
+    static public void makeDataDirs()
     {
         File imagesDir = new File(IMAGES_PATH);
         if(!imagesDir.exists())
@@ -175,5 +217,44 @@ public class FiszkiCardsModel
         File dataDir = new File(CARDS_XML_PATH);
         if(!dataDir.exists())
             dataDir.mkdirs();
+    }
+    static public void addNewCard(FiszkaCard newCard)
+    {
+        loadedCards.add(newCard);
+        addedCards.add(newCard);
+        IDs.add(newCard.id);
+    }
+    static public boolean isValidID(String id)
+    {
+        return !IDs.contains(id) && !Arrays.stream(restrictedCharacters).anyMatch(id::contains);
+    }
+    static private void loadCardsData()
+    {
+
+            File cardsDirectory = new File(CARDS_XML_PATH);
+            File[] cardsFiles = cardsDirectory.listFiles((file, fileName) -> {
+                return fileName.startsWith("card") && fileName.endsWith(".xml");
+            });
+
+            Serializer serializer = initializeSimpleSerializer();
+            for( File cardFile : cardsFiles)
+            {
+                try
+                {
+                    FiszkaCard loadedCard = serializer.read(FiszkaCard.class,
+                            new FileReader( cardFile, StandardCharsets.UTF_8));
+                    loadedCards.add(loadedCard);
+                    IDs.add(loadedCard.id);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace(System.out);
+                }
+            }
+    }
+    static private Serializer initializeSimpleSerializer()
+    {
+        Serializer serializer = new Persister();
+        return serializer;
     }
 }

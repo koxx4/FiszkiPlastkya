@@ -23,18 +23,19 @@ public class Program extends Application
         Parent parent = null;
         try
         {
-            parent = FXMLLoader.load(getClass().getResource("/MakeDatabase.fxml"));
+            parent = FXMLLoader.load(getClass().getResource("/MainMenuScene.fxml"));
         } catch (IOException e)
         {
             e.printStackTrace();
         }
         Scene mainScene = new Scene(parent);
-
+        //mainScene.getStylesheets().addAll(getClass().getResource("/nextCardButtonStyle.css").toExternalForm());
         stage.setTitle("Fiszki plastyka!");
         URL icoPath  = getClass().getResource("/icon3.png");
         stage.getIcons().add(new Image(icoPath.toString()));
         stage.setScene(mainScene);
-        stage.setResizable(false);
+        //stage.setResizable(false);
+        stage.sizeToScene();
         stage.show();
 
     }

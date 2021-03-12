@@ -1,0 +1,6 @@
+#nextCardButton{
+    -fx-background-image: url("arrow.png");
+    -fx-background-repeat: stretch;
+    -fx-background-size: stretch;
+    -fx-background-position: center center;
+}

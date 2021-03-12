@@ -8,9 +8,9 @@ import org.simpleframework.xml.Root;
 public class FiszkaCard
 {
     @Element
-    long id;
+    String id;
     @Element
-    String imagePath;
+    String imageURL;
     @Element
     String name;
     @Element
@@ -19,4 +19,15 @@ public class FiszkaCard
     String style;
     @Element
     String period;
+
+    public FiszkaCard(){}
+    public FiszkaCard(FiszkaCard sourceCard)
+    {
+        this.id = sourceCard.id;
+        this.imageURL = sourceCard.imageURL;
+        this.name = sourceCard.name;
+        this.author = sourceCard.author;
+        this.style = sourceCard.style;
+        this.period = sourceCard.period;
+    }
 }

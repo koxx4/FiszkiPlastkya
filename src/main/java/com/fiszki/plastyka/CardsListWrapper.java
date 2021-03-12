@@ -8,7 +8,7 @@ import java.util.List;
 @Root
 public class CardsListWrapper
 {
-    @ElementList
+    @ElementList(name = "cardsList")
     private List<FiszkaCard> cards;
 
     List<FiszkaCard> getCards()
